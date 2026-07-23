@@ -19,6 +19,16 @@ def format_float(value: float) -> str:
     return f"{value:.2f}"
 
 
+def missing_class(pct_value: float) -> str:
+    if pct_value < 10:
+        return "Low"
+    if pct_value < 40:
+        return "Medium"
+    if pct_value < 80:
+        return "High"
+    return "Critical"
+
+
 def safe_read_csv(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"Missing input file: {path}")
@@ -72,6 +82,8 @@ def looks_like_date_column(series: pd.Series, column_name: str) -> bool:
 def numeric_series(df: pd.DataFrame) -> list[str]:
     numeric_cols = []
     for col in df.columns:
+        if pd.api.types.is_bool_dtype(df[col]):
+            continue
         if pd.api.types.is_numeric_dtype(df[col]):
             numeric_cols.append(col)
             continue
@@ -82,12 +94,19 @@ def numeric_series(df: pd.DataFrame) -> list[str]:
     return numeric_cols
 
 
+def boolean_series(df: pd.DataFrame) -> list[str]:
+    return [col for col in df.columns if pd.api.types.is_bool_dtype(df[col])]
+
+
 def categorical_series(df: pd.DataFrame) -> list[str]:
     cats = []
+    numeric_cols = set(numeric_series(df))
     for col in df.columns:
         if pd.api.types.is_datetime64_any_dtype(df[col]):
             continue
-        if col in numeric_series(df):
+        if col in numeric_cols:
+            continue
+        if pd.api.types.is_bool_dtype(df[col]):
             continue
         nunique = df[col].nunique(dropna=True)
         if nunique <= 20:
@@ -107,20 +126,16 @@ def main() -> int:
     dtypes = df.dtypes.astype(str)
     missing_counts = df.isna().sum()
     missing_pct = (missing_counts / rows * 100.0) if rows else missing_counts * 0.0
+    missing_classification = missing_pct.apply(missing_class)
     duplicated_rows = int(df.duplicated().sum())
+    fully_empty_cols = [col for col in columns if df[col].isna().all()]
 
     event_id_col = detect_event_id_column(df)
     event_id_duplicates = None
-    event_id_duplicate_rows = None
     if event_id_col:
         event_id_series = df[event_id_col]
         event_id_non_null = event_id_series.dropna()
         event_id_duplicates = int(event_id_non_null.duplicated().sum())
-        event_id_duplicate_rows = (
-            df.loc[event_id_series.notna() & event_id_series.duplicated(keep=False), event_id_col]
-            .value_counts()
-            .sort_index()
-        )
 
     date_columns = [col for col in df.columns if looks_like_date_column(df[col], col)]
     date_quality = {}
@@ -133,8 +148,14 @@ def main() -> int:
         }
 
     numeric_cols = numeric_series(df)
+    boolean_cols = boolean_series(df)
+    numeric_quality_cols = [
+        col
+        for col in numeric_cols
+        if col not in boolean_cols and col not in {"latitude", "longitude"}
+    ]
     numeric_quality = {}
-    for col in numeric_cols:
+    for col in numeric_quality_cols:
         values = pd.to_numeric(df[col], errors="coerce")
         negative = int((values < 0).sum(skipna=True))
         numeric_quality[col] = {
@@ -157,17 +178,33 @@ def main() -> int:
         risks.append("One or more date-like columns contain invalid or unparseable values.")
     if any(v["negative"] > 0 for v in numeric_quality.values()):
         risks.append("One or more numeric columns contain negative values that may be invalid for this dataset.")
-    if any(df[col].isna().mean() > 0.5 for col in df.columns):
-        risks.append("Several columns have high missingness and may require filtering or imputation.")
+    if fully_empty_cols:
+        risks.append(f"{len(fully_empty_cols)} columns are fully empty and should be removed or backfilled from source data.")
+    high_missing_cols = [col for col in columns if missing_pct[col] >= 40]
+    if high_missing_cols:
+        risks.append(f"{len(high_missing_cols)} columns have high or critical missingness and may require filtering or imputation.")
     if not risks:
         risks.append("No major structural issues were detected by the automated checks.")
 
-    recommendations = [
-        "Review duplicate event IDs and decide whether to deduplicate or preserve versioned records.",
-        "Inspect date fields with invalid parses before using them in time-based analysis.",
-        "Confirm whether negative numeric values are legitimate for the affected columns.",
-        "Assess sparse columns for removal, imputation, or separate handling in downstream modeling.",
-    ]
+    recommendations = []
+    if fully_empty_cols:
+        recommendations.append(f"Remove or source-fill fully empty columns: {', '.join(fully_empty_cols)}.")
+    if high_missing_cols:
+        recommendations.append(
+            "Treat the high-missingness fields as optional in Power BI or mask them behind a drill-through page."
+        )
+    sparse_location_cols = [col for col in ["building", "room_number", "address1", "registration_url"] if col in columns]
+    if sparse_location_cols:
+        recommendations.append(
+            "Use location and registration fields selectively because they are sparsely populated for many events."
+        )
+    attendance_missing_cols = [col for col in ["ieee_attending", "guests_attending", "max_registrations"] if col in columns and missing_pct[col] > 0]
+    if attendance_missing_cols:
+        recommendations.append(
+            "Keep attendance metrics but add null-handling measures in BI because attendance and capacity fields are not complete."
+        )
+    if not recommendations:
+        recommendations.append("No specific remediation actions were identified beyond routine QA.")
 
     report_lines = []
     report_lines.append("# IEEE Event Dataset Profiling Report")
@@ -177,23 +214,25 @@ def main() -> int:
     report_lines.append(f"- Rows: {rows}")
     report_lines.append(f"- Columns: {cols}")
     report_lines.append(f"- Fully duplicated rows: {duplicated_rows}")
+    report_lines.append(f"- Fully empty columns: {len(fully_empty_cols)}")
     report_lines.append(f"- Event ID column detected: `{event_id_col}`" if event_id_col else "- Event ID column detected: not found")
     report_lines.append("")
 
     report_lines.append("## Column Summary")
-    report_lines.append("| Column | Dtype | Non-null | Missing | Missing % |")
-    report_lines.append("| --- | --- | ---: | ---: | ---: |")
+    report_lines.append("| Column | Dtype | Non-null | Missing | Missing % | Class | Status |")
+    report_lines.append("| --- | --- | ---: | ---: | ---: | --- | --- |")
     for col in columns:
+        status = "Fully empty" if col in fully_empty_cols else "Populated"
         report_lines.append(
-            f"| {col} | {dtypes[col]} | {int(df[col].notna().sum())} | {int(missing_counts[col])} | {format_float(missing_pct[col])} |"
+            f"| {col} | {dtypes[col]} | {int(df[col].notna().sum())} | {int(missing_counts[col])} | {format_float(missing_pct[col])} | {missing_classification[col]} | {status} |"
         )
     report_lines.append("")
 
     report_lines.append("## Missing-Data Summary")
-    report_lines.append("| Column | Missing Count | Missing % |")
-    report_lines.append("| --- | ---: | ---: |")
+    report_lines.append("| Column | Missing Count | Missing % | Class |")
+    report_lines.append("| --- | ---: | ---: | --- |")
     for col in columns:
-        report_lines.append(f"| {col} | {int(missing_counts[col])} | {format_float(missing_pct[col])} |")
+        report_lines.append(f"| {col} | {int(missing_counts[col])} | {format_float(missing_pct[col])} | {missing_classification[col]} |")
     report_lines.append("")
 
     report_lines.append("## Duplicate Summary")
@@ -201,13 +240,6 @@ def main() -> int:
     if event_id_col:
         report_lines.append(f"- Event ID column: `{event_id_col}`")
         report_lines.append(f"- Duplicate non-null event IDs: {event_id_duplicates}")
-        if event_id_duplicate_rows is not None and not event_id_duplicate_rows.empty:
-            report_lines.append("")
-            report_lines.append("| Event ID | Count |")
-            report_lines.append("| --- | ---: |")
-            for event_id, count in event_id_duplicate_rows.items():
-                if count > 1:
-                    report_lines.append(f"| {event_id} | {int(count)} |")
     else:
         report_lines.append("- Event ID column: not found")
     report_lines.append("")
@@ -229,7 +261,7 @@ def main() -> int:
         for col, info in numeric_quality.items():
             report_lines.append(f"| {col} | {info['negative']} | {format_float(info['negative_pct'])} |")
     else:
-        report_lines.append("- No numeric columns detected.")
+        report_lines.append("- No numeric columns required negative-value checks.")
     report_lines.append("")
 
     report_lines.append("## Categorical-Value Summary")
