@@ -1,18 +1,20 @@
 # Data Warehouse Row Counts
 
 ## Current Status
-- No live ETL load has been executed yet
-- Row counts will be populated after the database password placeholder is replaced and the loader is run
+- Live ETL load has been executed
+- Counts shown below reflect the latest successful run
 
 ## Expected Tables
-- analytics.dim_date
-- analytics.dim_category
-- analytics.dim_subcategory
-- analytics.dim_country
-- analytics.dim_state
-- analytics.dim_location
-- analytics.dim_organizing_unit
-- analytics.fact_events
-- audit.etl_run
-- audit.source_file
-- audit.data_quality_issue
+| Table | Row Count |
+| --- | ---: |
+| analytics.dim_date | 524 |
+| analytics.dim_category | 7 |
+| analytics.dim_subcategory | 22 |
+| analytics.dim_country | 236 |
+| analytics.dim_state | 2,176 |
+| analytics.dim_location | 2,877 |
+| analytics.dim_organizing_unit | 2,278 |
+| analytics.fact_events | 6,197 |
+| audit.etl_run | 4 |
+| audit.source_file | 20 |
+| audit.data_quality_issue | 16,546 |

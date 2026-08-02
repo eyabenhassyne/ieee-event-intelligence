@@ -47,3 +47,20 @@ CREATE INDEX IF NOT EXISTS idx_data_quality_issue_etl_run_id ON audit.data_quali
 CREATE INDEX IF NOT EXISTS idx_data_quality_issue_source_event_id ON audit.data_quality_issue(source_event_id);
 CREATE INDEX IF NOT EXISTS idx_data_quality_issue_rule_code ON audit.data_quality_issue(rule_code);
 CREATE INDEX IF NOT EXISTS idx_data_quality_issue_severity ON audit.data_quality_issue(severity);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_constraint c
+        JOIN pg_class t ON t.oid = c.conrelid
+        JOIN pg_namespace n ON n.oid = t.relnamespace
+        WHERE c.conname = 'fact_events_etl_run_fk'
+          AND n.nspname = 'analytics'
+          AND t.relname = 'fact_events'
+    ) THEN
+        ALTER TABLE analytics.fact_events
+            ADD CONSTRAINT fact_events_etl_run_fk
+            FOREIGN KEY (etl_run_id) REFERENCES audit.etl_run(etl_run_id);
+    END IF;
+END $$;

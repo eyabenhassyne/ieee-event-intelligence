@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS analytics.fact_events (
     CONSTRAINT fact_events_state_fk FOREIGN KEY (state_key) REFERENCES analytics.dim_state(state_key),
     CONSTRAINT fact_events_location_fk FOREIGN KEY (location_key) REFERENCES analytics.dim_location(location_key),
     CONSTRAINT fact_events_organizing_unit_fk FOREIGN KEY (organizing_unit_key) REFERENCES analytics.dim_organizing_unit(organizing_unit_key),
-    CONSTRAINT fact_events_etl_run_fk FOREIGN KEY (etl_run_id) REFERENCES audit.etl_run(etl_run_id),
     CONSTRAINT fact_events_duration_chk CHECK (duration_hours IS NULL OR duration_hours >= 0),
     CONSTRAINT fact_events_ieee_attending_chk CHECK (ieee_attending IS NULL OR ieee_attending >= 0),
     CONSTRAINT fact_events_guests_attending_chk CHECK (guests_attending IS NULL OR guests_attending >= 0),

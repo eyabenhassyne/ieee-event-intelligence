@@ -6,7 +6,8 @@ WHERE NOT EXISTS (
     SELECT 1 FROM analytics.dim_category WHERE category_key = 0
 );
 SELECT setval(pg_get_serial_sequence('analytics.dim_category', 'category_key'),
-              GREATEST((SELECT COALESCE(MAX(category_key), 0) FROM analytics.dim_category), 0));
+              GREATEST((SELECT COALESCE(MAX(category_key), 0) FROM analytics.dim_category), 1),
+              true);
 
 INSERT INTO analytics.dim_subcategory (
     subcategory_key, source_subcategory_id, category_key, subcategory_name, archived, is_unknown, created_at, updated_at
@@ -16,7 +17,8 @@ WHERE NOT EXISTS (
     SELECT 1 FROM analytics.dim_subcategory WHERE subcategory_key = 0
 );
 SELECT setval(pg_get_serial_sequence('analytics.dim_subcategory', 'subcategory_key'),
-              GREATEST((SELECT COALESCE(MAX(subcategory_key), 0) FROM analytics.dim_subcategory), 0));
+              GREATEST((SELECT COALESCE(MAX(subcategory_key), 0) FROM analytics.dim_subcategory), 1),
+              true);
 
 INSERT INTO analytics.dim_country (
     country_key, source_country_id, country_name, abbreviation, is_unknown, created_at, updated_at
@@ -26,7 +28,8 @@ WHERE NOT EXISTS (
     SELECT 1 FROM analytics.dim_country WHERE country_key = 0
 );
 SELECT setval(pg_get_serial_sequence('analytics.dim_country', 'country_key'),
-              GREATEST((SELECT COALESCE(MAX(country_key), 0) FROM analytics.dim_country), 0));
+              GREATEST((SELECT COALESCE(MAX(country_key), 0) FROM analytics.dim_country), 1),
+              true);
 
 INSERT INTO analytics.dim_state (
     state_key, source_state_id, country_key, state_name, abbreviation, is_unknown, created_at, updated_at
@@ -36,7 +39,8 @@ WHERE NOT EXISTS (
     SELECT 1 FROM analytics.dim_state WHERE state_key = 0
 );
 SELECT setval(pg_get_serial_sequence('analytics.dim_state', 'state_key'),
-              GREATEST((SELECT COALESCE(MAX(state_key), 0) FROM analytics.dim_state), 0));
+              GREATEST((SELECT COALESCE(MAX(state_key), 0) FROM analytics.dim_state), 1),
+              true);
 
 INSERT INTO analytics.dim_location (
     location_key, city, address1, building, room_number, latitude, longitude, location_type,
@@ -66,4 +70,5 @@ WHERE NOT EXISTS (
     SELECT 1 FROM analytics.dim_organizing_unit WHERE organizing_unit_key = 0
 );
 SELECT setval(pg_get_serial_sequence('analytics.dim_organizing_unit', 'organizing_unit_key'),
-              GREATEST((SELECT COALESCE(MAX(organizing_unit_key), 0) FROM analytics.dim_organizing_unit), 0));
+              GREATEST((SELECT COALESCE(MAX(organizing_unit_key), 0) FROM analytics.dim_organizing_unit), 1),
+              true);

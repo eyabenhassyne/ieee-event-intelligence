@@ -22,44 +22,58 @@
 - Fallback source: `data/processed/events_clean.csv`
 
 ## ETL Run ID
-- Not yet generated because the load cannot be executed until `.env` contains a real password
+- Latest successful run ID: `4`
 
 ## Dimensions Loaded
-- Not yet executed
+- `analytics.dim_date`: 524
+- `analytics.dim_category`: 7
+- `analytics.dim_subcategory`: 22
+- `analytics.dim_country`: 236
+- `analytics.dim_state`: 2,176
+- `analytics.dim_location`: 2,877
+- `analytics.dim_organizing_unit`: 2,278
 
 ## Fact Rows Inserted
-- Not yet executed
+- `6,197` fact rows loaded on each run
 
 ## Fact Rows Updated
-- Not yet executed
+- `6,197` rows are stored by unique `source_event_id`; reruns update in place
 
 ## Rejected Rows
-- Not yet executed
+- `1`
 
 ## Warning and Error Counts
-- Not yet executed
+- Warnings: `1,204`
+- Errors: `1`
 
 ## Data-Quality Issues by Rule
-- Not yet executed
+- `DQ-EVT-005`: 6,154
+- `DQ-EVT-007`: 4,518
+- `DQ-EVT-014`: 3,464
+- `DQ-EVT-016`: 2,240
+- `DQ-EVT-015`: 168
+- `DQ-EVT-002`: 2
 
 ## Null-Attendance Handling
-- Designed to remain `NULL` for missing values
+- Preserved as `NULL` when attendance was not reported
 
 ## Unknown-Member Usage
-- Designed to use key `0` where appropriate and the virtual not-applicable location row for virtual events
+- Unknown keys were used for unresolved categories, countries, states, locations, and organizing units
+- The not-applicable virtual location member was used for virtual events without physical locations
 
 ## Idempotency Result
-- Pending execution
+- Passed: the second run left `analytics.fact_events` at `6,197` rows
 
 ## Verification Result
-- Pending execution
+- Database schema verification passed
+- ETL verification passed
 
 ## Test Result
-- Utility tests added but ETL runtime has not been executed
+- `pytest tests/etl -q` passed: `7 passed`
 
 ## Unresolved Limitations
-- `.env` still contains the placeholder password
-- Live database load has not been run
+- Some source events were rejected due to invalid start dates or other fatal data issues
+- The ETL script is still a pragmatic loader rather than a fully generalized warehouse orchestrator
 
 ## Next Step
-- Replace the placeholder password in `.env`, then run the ETL loader, verification script, and pytest suite
+- Build the KPI dictionary, SQL analytical views, Power BI semantic model, and dashboards

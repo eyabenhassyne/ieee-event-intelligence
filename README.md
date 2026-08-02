@@ -89,7 +89,7 @@ Missing attendance remains `NULL` and must not be coerced to zero. Registration,
 ## Current Status
 
 - Database schema design: implemented in SQL scripts
-- Database deployment: pending manual PostgreSQL password update in `.env` and schema application
+- Database deployment: applied to PostgreSQL
 
 ## ETL Pipeline
 
@@ -97,6 +97,6 @@ The ETL pipeline is designed to load reference dimensions first, resolve surroga
 
 ## Current Status
 
-- ETL implementation: scaffolded in code
-- Database loading: blocked until the placeholder password in `.env` is replaced with the real local PostgreSQL password
+- ETL implementation: completed and run against PostgreSQL
+- Database loading: complete for the current source extract, with one rejected row and documented data-quality issues
 - Next phase: KPI dictionary, SQL analytical views, Power BI semantic model, and dashboards
