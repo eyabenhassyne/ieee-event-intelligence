@@ -90,3 +90,13 @@ Missing attendance remains `NULL` and must not be coerced to zero. Registration,
 
 - Database schema design: implemented in SQL scripts
 - Database deployment: pending manual PostgreSQL password update in `.env` and schema application
+
+## ETL Pipeline
+
+The ETL pipeline is designed to load reference dimensions first, resolve surrogate keys, write one fact row per IEEE event, log each ETL run, and record data-quality issues. The loader is designed to be idempotent through source-key upserts and to preserve missing attendance as `NULL`.
+
+## Current Status
+
+- ETL implementation: scaffolded in code
+- Database loading: blocked until the placeholder password in `.env` is replaced with the real local PostgreSQL password
+- Next phase: KPI dictionary, SQL analytical views, Power BI semantic model, and dashboards
