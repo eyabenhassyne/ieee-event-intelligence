@@ -65,3 +65,28 @@ The project does not include:
 ## Project Status
 
 Current phase: Project initialization and requirements analysis.
+
+## Data Warehouse Design
+
+The project uses a PostgreSQL star schema centered on one `FactEvents` row per IEEE event.
+
+Implemented dimensions include:
+- `DimDate`
+- `DimCategory`
+- `DimSubcategory`
+- `DimCountry`
+- `DimState`
+- `DimLocation`
+- `DimOrganizingUnit`
+
+Audit support is modeled through:
+- `audit.etl_run`
+- `audit.source_file`
+- `audit.data_quality_issue`
+
+Missing attendance remains `NULL` and must not be coerced to zero. Registration, feedback, promotion, and reporting-compliance analytics are deferred unless new source data becomes available.
+
+## Current Status
+
+- Database schema design: implemented in SQL scripts
+- Database deployment: pending manual PostgreSQL password update in `.env` and schema application
