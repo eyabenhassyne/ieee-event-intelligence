@@ -65,3 +65,38 @@ The project does not include:
 ## Project Status
 
 Current phase: Project initialization and requirements analysis.
+
+## Data Warehouse Design
+
+The project uses a PostgreSQL star schema centered on one `FactEvents` row per IEEE event.
+
+Implemented dimensions include:
+- `DimDate`
+- `DimCategory`
+- `DimSubcategory`
+- `DimCountry`
+- `DimState`
+- `DimLocation`
+- `DimOrganizingUnit`
+
+Audit support is modeled through:
+- `audit.etl_run`
+- `audit.source_file`
+- `audit.data_quality_issue`
+
+Missing attendance remains `NULL` and must not be coerced to zero. Registration, feedback, promotion, and reporting-compliance analytics are deferred unless new source data becomes available.
+
+## Current Status
+
+- Database schema design: implemented in SQL scripts
+- Database deployment: applied to PostgreSQL
+
+## ETL Pipeline
+
+The ETL pipeline is designed to load reference dimensions first, resolve surrogate keys, write one fact row per IEEE event, log each ETL run, and record data-quality issues. The loader is designed to be idempotent through source-key upserts and to preserve missing attendance as `NULL`.
+
+## Current Status
+
+- ETL implementation: completed and run against PostgreSQL
+- Database loading: complete for the current source extract, with one rejected row and documented data-quality issues
+- Next phase: KPI dictionary, SQL analytical views, Power BI semantic model, and dashboards

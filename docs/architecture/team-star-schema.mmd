@@ -1,0 +1,67 @@
+erDiagram
+    DIM_DATE ||--o{ FACT_EVENTS : date_key
+    DIM_CATEGORY ||--o{ DIM_SUBCATEGORY : category_key
+    DIM_CATEGORY ||--o{ FACT_EVENTS : category_key
+    DIM_SUBCATEGORY ||--o{ FACT_EVENTS : subcategory_key
+    DIM_COUNTRY ||--o{ DIM_STATE : country_key
+    DIM_COUNTRY ||--o{ FACT_EVENTS : country_key
+    DIM_STATE ||--o{ FACT_EVENTS : state_key
+    DIM_LOCATION ||--o{ FACT_EVENTS : location_key
+    DIM_ORGANIZING_UNIT ||--o{ FACT_EVENTS : organizing_unit_key
+    AUDIT_ETL_RUN ||--o{ FACT_EVENTS : etl_run_id
+    AUDIT_ETL_RUN ||--o{ AUDIT_SOURCE_FILE : etl_run_id
+    AUDIT_ETL_RUN ||--o{ AUDIT_DATA_QUALITY_ISSUE : etl_run_id
+
+    DIM_DATE {
+        int date_key PK
+        date full_date UK
+    }
+    DIM_CATEGORY {
+        bigint category_key PK
+        int source_category_id UK
+    }
+    DIM_SUBCATEGORY {
+        bigint subcategory_key PK
+        int source_subcategory_id UK
+        bigint category_key FK
+    }
+    DIM_COUNTRY {
+        bigint country_key PK
+        int source_country_id UK
+    }
+    DIM_STATE {
+        bigint state_key PK
+        int source_state_id UK
+        bigint country_key FK
+    }
+    DIM_LOCATION {
+        bigint location_key PK
+        text location_signature UK
+    }
+    DIM_ORGANIZING_UNIT {
+        bigint organizing_unit_key PK
+        text primary_host_spoid UK
+    }
+    FACT_EVENTS {
+        bigint event_key PK
+        bigint source_event_id UK
+        int date_key FK
+        bigint category_key FK
+        bigint subcategory_key FK
+        bigint country_key FK
+        bigint state_key FK
+        bigint location_key FK
+        bigint organizing_unit_key FK
+        bigint etl_run_id FK
+    }
+    AUDIT_ETL_RUN {
+        bigint etl_run_id PK
+    }
+    AUDIT_SOURCE_FILE {
+        bigint source_file_id PK
+        bigint etl_run_id FK
+    }
+    AUDIT_DATA_QUALITY_ISSUE {
+        bigint issue_id PK
+        bigint etl_run_id FK
+    }
