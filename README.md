@@ -128,4 +128,6 @@ The repository also includes static dashboard mockups and design notes for the s
 
 - Dashboard mockups: in progress
 - Supported pages: executive overview, event inventory, attendance analytics, organizational units, category analysis, geographic analysis, data quality and ETL, monthly export
+- Review status: approved with one navigation fix applied
+- Screenshot status: pending, because browser screenshot tooling was not available in this environment
 - Next manual step: translate the static mockups into the Power BI report

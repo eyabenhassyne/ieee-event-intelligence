@@ -19,12 +19,15 @@ Add dashboard mockups for IEEE event intelligence
 
 - Mockup verification: PASS
 - Repository tests: 9 passed
+- Manual review: APPROVED with a Home-navigation fix applied
+- Screenshot status: pending, because browser screenshot tooling was not available
 
 ## Scope Guardrails
 
 - No Power BI file was created.
 - No unsupported metrics were introduced.
 - No datasets or `.env` files were modified.
+- No external API calls were added to the mockup pages.
 
 ## Review Checklist
 
@@ -32,3 +35,9 @@ Add dashboard mockups for IEEE event intelligence
 - Confirm the supported metric boundaries are preserved.
 - Confirm no data files were added.
 - Confirm the mockups are suitable as Power BI build references.
+
+## Final Review Notes
+
+- Every report page now includes a route back to the home page.
+- Attendance language now uses "not reported" where attendance is missing.
+- Power BI implementation remains not started.

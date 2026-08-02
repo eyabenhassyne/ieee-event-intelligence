@@ -41,7 +41,13 @@
 ## Validation Notes
 - Mockup file presence verified by script.
 - Content checks ensure the mockups mention the expected warehouse facts and supported KPI boundaries.
-- Screenshots were not generated in this pass; the pages are ready for manual browser capture if needed.
+- One navigation issue was fixed during review by adding a Home route to every report page.
+- Screenshots were not generated in this pass; browser screenshot tooling was not available in this environment.
+
+## Review Outcome
+- Status: approved for PR review.
+- Critical issues: none remaining.
+- Power BI implementation: not started.
 
 ## Next Step
 - Build the Power BI report from the semantic model and these static layout references.
