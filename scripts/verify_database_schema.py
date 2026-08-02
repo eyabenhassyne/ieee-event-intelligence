@@ -149,7 +149,7 @@ def main() -> int:
                     )
                 ),
             )
-            run("FactEvents empty", fetch_value(cur, "SELECT COUNT(*) FROM analytics.fact_events") == 0)
+            run("FactEvents populated", fetch_value(cur, "SELECT COUNT(*) FROM analytics.fact_events") > 0)
 
             unknown_tests = [
                 ("analytics.dim_category", "is_unknown", "category_key = 0"),

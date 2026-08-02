@@ -1,0 +1,39 @@
+-- Measure table: KPI Measures
+
+Total Events = COUNTROWS('fact_events')
+
+Published Events = CALCULATE([Total Events], 'fact_events'[published] = TRUE())
+
+Published Event Rate = DIVIDE([Published Events], [Total Events])
+
+Cancelled Events = CALCULATE([Total Events], 'fact_events'[cancelled] = TRUE())
+
+Cancellation Rate = DIVIDE([Cancelled Events], [Total Events])
+
+Virtual Events = CALCULATE([Total Events], 'fact_events'[virtual] = TRUE())
+
+Virtual Event Rate = DIVIDE([Virtual Events], [Total Events])
+
+Events With Attendance = CALCULATE([Total Events], 'fact_events'[attendance_available] = TRUE())
+
+Events Missing Attendance = CALCULATE([Total Events], 'fact_events'[attendance_available] = FALSE())
+
+Attendance Reporting Rate = DIVIDE([Events With Attendance], [Total Events])
+
+Total IEEE Attendance = SUM('fact_events'[ieee_attending])
+
+Total Guest Attendance = SUM('fact_events'[guests_attending])
+
+Total Attendance = SUM('fact_events'[total_attendance])
+
+Average IEEE Attendance = AVERAGEX(FILTER('fact_events', NOT(ISBLANK('fact_events'[ieee_attending]))), 'fact_events'[ieee_attending])
+
+Average Guest Attendance = AVERAGEX(FILTER('fact_events', NOT(ISBLANK('fact_events'[guests_attending]))), 'fact_events'[guests_attending])
+
+Average Total Attendance = AVERAGEX(FILTER('fact_events', NOT(ISBLANK('fact_events'[total_attendance]))), 'fact_events'[total_attendance])
+
+Median Total Attendance = MEDIANX(FILTER('fact_events', NOT(ISBLANK('fact_events'[total_attendance]))), 'fact_events'[total_attendance])
+
+Distinct Countries = DISTINCTCOUNT('fact_events'[country_key])
+
+Distinct Organizing Units = DISTINCTCOUNT('fact_events'[organizing_unit_key])
