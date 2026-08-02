@@ -100,3 +100,22 @@ The ETL pipeline is designed to load reference dimensions first, resolve surroga
 - ETL implementation: completed and run against PostgreSQL
 - Database loading: complete for the current source extract, with one rejected row and documented data-quality issues
 - Next phase: KPI dictionary, SQL analytical views, Power BI semantic model, and dashboards
+
+## KPI Layer
+
+The KPI layer documents supported event-volume, attendance, organizing-unit, category, geography, and data-quality measures that are derived from the PostgreSQL star schema and audit tables.
+
+## Analytics Views
+
+The analytics layer now includes reusable views for event overview, monthly summaries, category performance, organizing-unit performance, country performance, attendance quality, data-quality summary, and ETL run summary.
+
+## Power BI Preparation
+
+Power BI guidance now covers the star-schema model, the recommended import tables and views, DAX measures, and dashboard blueprints. Missing attendance remains blank and should not be coerced to zero.
+
+## Current Status
+
+- KPI dictionary: in progress
+- Analytics views: created and verified
+- Power BI preparation: documented
+- Next manual step: Build the Power BI Desktop report from the semantic-model specification and dashboard blueprint
